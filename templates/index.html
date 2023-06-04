@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsão de Aposentadoria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a href="/" class="navbar-brand">Previsão de Aposentadoria</a>
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" 
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>                
+            </button>
+        </div>
+    </nav>
+
+    <div class="jumbotron text-center apresentacao">
+        <div class="container">
+            <h1>Calculadora - Previsão de Aposentadoria</h1>
+            <p class="lead">Para calcular a previsão de aposentadoria, entre com os dados abaixo.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <form action="{{ url_for('send_data') }}" method="post" id="entrada-dados">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Nome:</label>
+                        <input type="text" class="form-control" name="nome-interessado">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Sexo:</label>
+                        <br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="radio_sexo" id="sex-masc" value="masculino">
+                            <label class="form-check-label" for="inlineRadio1">Masculino</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="radio_sexo" id="sex-fem" value="feminino">
+                            <label class="form-check-label" for="inlineRadio2">Feminino</label>
+                          </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Data de Nascimento:</label>
+                        <input type="date" class="form-control" name="data-nascimento">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Cargo:</label>
+                        <br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="radio_cargo" id="cargo-procurador" value="Procurador">
+                            <label class="form-check-label" for="inlineRadio1">Procurador</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="radio_cargo" id="cargo-engenheiro" value="Engenheiro">
+                            <label class="form-check-label" for="inlineRadio2">Engenheiro</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="radio_cargo" id="cargo-outros" value="Outros">
+                            <label class="form-check-label" for="inlineRadio3">Outros</label>
+                          </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Data do Exercício:</label>
+                        <input type="date" class="form-control" name="data-exercicio">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Data do Nível (Procurador ou Engenheiro):</label>
+                        <input type="date" class="form-control" name="data-nivel">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Data do 1º emprego:</label>
+                        <input type="date" class="form-control" name="data-pri-emprego">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Tempo OAB (em dias):</label>
+                        <input type="text" class="form-control" name="tempo-oab">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Tempo INSS (em dias):</label>
+                        <input type="text" class="form-control" name="tempo-inss">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Tempo outros Órgãos Públicos (em dias):</label>
+                        <input type="text" class="form-control" name="tempo-outros">
+                    </div>
+                </div>
+            </div>
+            <br> 
+            
+            <div class="row"> 
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <label>Data do Fechamento:</label>
+                        <input type="date" class="form-control" name="data-fechamento">
+                    </div>
+                </div> 
+                <div class="col-lg-3">
+                    <input type="submit" class="btn btn-primary" value="Calcular">                
+                    <input type="reset" class="btn btn-danger" value="Limpar">
+                </div>              
+                
+            </div>
+        </form>
+    </div>
+
+    <div class="card-footer text-center">
+        <footer>
+            <p>Desenvolvido por <strong>Felipe Alvarez dos Santos - PR07 (Bauru)</strong></p>
+            <p>Dúvidas no funcionamento do sistema?</p>            
+            <p>Mande um e-mail para <strong>felipedossantos@sp.gov.br</strong></p>            
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+</body>
+</html>
