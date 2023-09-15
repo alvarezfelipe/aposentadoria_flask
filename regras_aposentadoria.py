@@ -36,7 +36,7 @@ def regra_permanente(sexo, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo
         else: 
             completou_regra = False
             print('Não completou os requisitos para aposentadoria na Regra Permanente')
-            regra = 'Não completou os requisitos para aposentadoria na Regra Permanente'
+            regra = f"Não completou os requisitos para aposentadoria na Regra Permanente"
             print('---------------------------------------')
     else: 
         completou_regra = False
@@ -118,7 +118,7 @@ def transicao_3(sexo, admissao, idade, tempo_contribuicao, tempo_efetivo, tempo_
 
 #A Transição 4 tem como parâmetro o pedágio de 100% do tempo que faltava até 07/03/2020
 #Deve verificar se a data de admissão for até 07/03/2020 para garantir 100% da média dos salários
-def transicao_4(sexo, admissao, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab):
+def transicao_4(sexo, admissao, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab) -> str:
     data_transicao = datetime.strptime('07/03/2020', '%d/%m/%Y')
 
     if admissao <= data_transicao:
@@ -127,6 +127,7 @@ def transicao_4(sexo, admissao, idade, tempo_contribuicao, tempo_efetivo, tempo_
                 completou_regra = True
                 print('Completou todos os requisitos aposentar na REGRA DE TRANSIÇÃO 4, com fundamento no Art. 40, §§ 1º, III e 3º da CF/88 c.c CE/89 c.c Art. 11, I, II, III, IV, V, §§ 2º, ítem 2 e 3º, ítem 2 da LCE n. 1.354/20')
                 print('---------------------------------------')
+
             else:
                 print('Não completou os requisitos para aposentadoria pela Regra de Transição 4')
                 

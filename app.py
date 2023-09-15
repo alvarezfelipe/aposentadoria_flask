@@ -43,11 +43,12 @@ def send_data():
 
     #Aplicando regras aposentadoria
     def aplica_regras():
-        regras_aposentadoria.regra_permanente(sexo,idade,tempo_contribuicao,tempo_efetivo, tempo_cargo)
-        regras_aposentadoria.transicao_1(sexo, idade, exercicio, tempo_contribuicao, tempo_efetivo, tempo_cargo)
+        a = regras_aposentadoria.regra_permanente(sexo,idade,tempo_contribuicao,tempo_efetivo, tempo_cargo)
+        b = regras_aposentadoria.transicao_1(sexo, idade, exercicio, tempo_contribuicao, tempo_efetivo, tempo_cargo)
         # regras_aposentadoria.transicao_2(sexo, idade, exercicio, tempo_contribuicao, tempo_efetivo, tempo_cargo)
-        regras_aposentadoria.transicao_3(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
-        regras_aposentadoria.transicao_4(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
+        c = regras_aposentadoria.transicao_3(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
+        d = regras_aposentadoria.transicao_4(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
+        return (a,b,c,d)
 
     regras = aplica_regras()
     return render_template('previsao.html', 
@@ -68,6 +69,7 @@ def send_data():
                            tempo_contribuicao=tempo_contribuicao,
                            tempo_cargo=tempo_cargo,
                            regras=regras,
+                           len_regras=len(regras)
                            )
 
 app.run(debug=True)

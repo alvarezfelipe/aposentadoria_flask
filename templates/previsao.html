@@ -48,7 +48,11 @@
     <div class="text-center">
         <div class="container">
             <h1>Previsão de Aposentadoria</h1>
-            <p>{{ regras }}</p>
+            <ol style="list-style: none;">
+                {%for i in range(len_regras)%}
+                <li>{{regras[i]}}</li>
+                {%endfor%}
+            </ol>
         </div>
     </div>
     <div class="card-footer text-center">
