@@ -13,7 +13,8 @@ def send_data():
     #Obtendo dados do formulário
     nome = request.form['nome-interessado']
     sexo = request.form['radio_sexo'].lower()
-    idade = funcoes.calc_idade(funcoes.txt_to_date(request.form['data-nascimento']))
+    data_nascimento = funcoes.txt_to_date(request.form['data-nascimento'])
+    idade = funcoes.calc_idade(data_nascimento)    
     cargo = request.form['radio_cargo'].lower()
     exercicio = funcoes.txt_to_date(request.form['data-exercicio'])    
 
@@ -49,8 +50,14 @@ def send_data():
         c = regras_aposentadoria.transicao_3(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
         d = regras_aposentadoria.transicao_4(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
         return (a,b,c,d)
-
     regras = aplica_regras()
+
+    #Aplicando previsão para aposentadoria
+    def previsao():
+        a = regras_aposentadoria.previsao_regra_permanente(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab)
+        return a
+
+    previsoes = previsao()
     return render_template('previsao.html', 
                            nome=nome,
                            sexo=sexo,
@@ -69,7 +76,9 @@ def send_data():
                            tempo_contribuicao=tempo_contribuicao,
                            tempo_cargo=tempo_cargo,
                            regras=regras,
-                           len_regras=len(regras)
+                           len_regras=len(regras),
+                           previsoes=previsoes,
+                           len_previsoes=len(previsoes)
                            )
 
 app.run(debug=True)
