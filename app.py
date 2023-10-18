@@ -54,8 +54,11 @@ def send_data():
 
     #Aplicando previsão para aposentadoria
     def previsao():
-        a = regras_aposentadoria.previsao_regra_permanente(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab)
-        return a
+        a = regras_aposentadoria.previsao_regra_permanente(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
+        b = regras_aposentadoria.previsao_regra_transicao1(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
+        c = regras_aposentadoria.previsao_regra_transicao3(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
+        d = regras_aposentadoria.previsao_regra_transicao4(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
+        return (a,b,c,d)
 
     previsoes = previsao()
     return render_template('previsao.html', 

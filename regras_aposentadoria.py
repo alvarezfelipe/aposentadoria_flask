@@ -122,12 +122,11 @@ def previsao_regra_permanente(sexo, nascimento, cargo, inicio_contribuicao, inic
   
   if sexo == 'feminino':
       completa_idade = f"Completará 65 anos em: {nascimento.day}/{nascimento.month}/{nascimento.year + 65}"
-    #   completa_contribuicao = f"Completará 25 anos de contribuição em: {datetime.strftime((tempo_trabalho + timedelta(outros)) + timedelta(days=9125), '%d/%m/%Y')}."
       completa_contribuicao = f"Completou/Completará 25 anos de contribuição em: {datetime.strftime(tempo_trabalho  + timedelta(days=9125), '%d/%m/%Y')}."
       completa_efetivo_exercicio = f"Completará 10 anos de exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=3650), '%d/%m/%Y')}."
       completa_nivel = f"Completará 5 anos no cargo em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}."
 
-      previsao = (completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
+      previsao = (nome_regra, completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
 
   elif sexo == 'masculino':
       completa_idade = f"Completará 65 anos em: {nascimento.day}/{nascimento.month}/{nascimento.year + 65}"
@@ -140,9 +139,11 @@ def previsao_regra_permanente(sexo, nascimento, cargo, inicio_contribuicao, inic
     previsao = 'Dados incorretos. Revise as informações'
   return previsao
 
-def previsao_regra_transicao1(sexo, nascimento, cargo, inicio_contribuicao, inicio_exercicio, tempo_inss, tempo_outros, tempo_oab):
+def previsao_regra_transicao1(sexo, nascimento, cargo, inicio_contribuicao, inicio_exercicio, tempo_inss, tempo_outros, tempo_oab, fechamento):
     tempo_trabalho = inicio_contribuicao
     data_transicao1 = datetime.strptime('31/12/2003', '%d/%m/%Y')
+
+    nome_regra = "Previsão para cumprir Regra de Transição 1"
 
     if cargo == 'procurador' and inicio_exercicio <= datetime.strptime('16/12/1998', '%d/%m/%Y'):
         outros = tempo_inss + tempo_outros + tempo_oab 
@@ -155,31 +156,68 @@ def previsao_regra_transicao1(sexo, nascimento, cargo, inicio_contribuicao, inic
             completa_contribuicao = f"Completará 30 anos de contribuição em: {datetime.strftime((tempo_trabalho - timedelta(outros)) + timedelta(days=10950),'%d/%m/%Y')}"
             completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
             completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
-            print(completa_idade)
-            print(completa_contribuicao)
-            print(completa_efetivo_exercicio)
-            print(completa_nivel)
+
+            previsao = (completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
+
 
         elif sexo == 'masculino':
             completa_idade = f"Completará 65 anos de idade em: {nascimento.day}/{nascimento.month}/{nascimento.year + 65}"
             completa_contribuicao = f"Completará 35 anos de contribuição em: {datetime.strftime((tempo_trabalho - timedelta(outros)) + timedelta(days=12775),'%d/%m/%Y')}"
             completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
             completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
-            print(completa_idade)
-            print(completa_contribuicao)
-            print(completa_efetivo_exercicio)
-            print(completa_nivel)
+
+            previsao = (nome_regra, completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
+
+
         else:
-            print('Dados incorretos. Revise as informações')
+            previsao = 'Dados incorretos. Revise as informações'
     else:
-        print('Regra de transição 1 não se aplica ao caso.')
+        previsao = 'Regra de transição 1 não se aplica ao caso.'
+    
+    return previsao
 
 def previsao_regra_transicao2():
     pass
 
-def previsao_regra_transicao3(sexo, nascimento, cargo, inicio_contribuicao, inicio_exercicio, tempo_inss, tempo_outros, tempo_oab):
+def previsao_regra_transicao3(sexo, nascimento, cargo, inicio_contribuicao, inicio_exercicio, tempo_inss, tempo_outros, tempo_oab,fechamento):
     
-    data_transicao = datetime.strptime('31/12/2003', '%d/%m/%Y')    
+    data_transicao = datetime.strptime('31/12/2003', '%d/%m/%Y')  
+
+    nome_regra = "Previsão para cumprir Regra de Transição 3"
+
+    if cargo == 'procurador' and inicio_exercicio <= datetime.strptime('16/12/1998', '%d/%m/%Y'):
+        outros = tempo_inss + tempo_outros + tempo_oab 
+    else:
+        outros = tempo_inss + tempo_outros
+
+    if inicio_exercicio <= data_transicao:
+        if sexo == 'feminino':
+            completa_idade = f"Completará 57 anos de idade em: {nascimento.day}/{nascimento.month}/{nascimento.year + 57}"
+            completa_contribuicao = calc_pedagio(inicio_contribuicao, sexo, cargo, tempo_oab)
+            completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
+            completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
+
+            previsao = (nome_regra, completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
+
+        elif sexo == 'masculino':
+            completa_idade = f"Completará 60 anos de idade em: {nascimento.day}/{nascimento.month}/{nascimento.year + 60}"
+            completa_contribuicao = calc_pedagio(inicio_contribuicao, sexo, cargo, tempo_oab)
+            completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
+            completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
+
+            print(completa_contribuicao)
+            previsao = (nome_regra, completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
+        else:
+            previsao = 'Dados incorretos. Revise as informações'
+    else:
+        previsao = 'Regra de transição 3 não se aplica ao caso.'
+    return previsao
+
+def previsao_regra_transicao4(sexo, nascimento, cargo, inicio_contribuicao, inicio_exercicio, tempo_inss, tempo_outros, tempo_oab,fechamento):
+    
+    data_transicao = datetime.strptime('07/03/2020', '%d/%m/%Y') 
+
+    nome_regra = "Previsão para cumprir Regra de Transição 4"   
   
     if inicio_exercicio <= data_transicao:
         if sexo == 'feminino':
@@ -187,50 +225,18 @@ def previsao_regra_transicao3(sexo, nascimento, cargo, inicio_contribuicao, inic
             completa_contribuicao = calc_pedagio(inicio_contribuicao, sexo, cargo, tempo_oab)
             completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
             completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
-            print(completa_idade)
-            print(completa_contribuicao)
-            print(completa_efetivo_exercicio)
-            print(completa_nivel)
+            
+            previsao = (nome_regra, completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
 
         elif sexo == 'masculino':
             completa_idade = f"Completará 60 anos de idade em: {nascimento.day}/{nascimento.month}/{nascimento.year + 60}"
             completa_contribuicao = calc_pedagio(inicio_contribuicao, sexo, cargo, tempo_oab)
             completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
             completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
-            print(completa_idade)
-            print(completa_contribuicao)
-            print(completa_efetivo_exercicio)
-            print(completa_nivel)
+            
+            previsao = (nome_regra, completa_idade, completa_contribuicao, completa_efetivo_exercicio, completa_nivel)
         else:
-            print('Dados incorretos. Revise as informações')
+            previsao = 'Dados incorretos. Revise as informações'
     else:
-        print('Regra de transição 3 não se aplica ao caso.')
-
-def previsao_regra_transicao4(sexo, nascimento, cargo, inicio_contribuicao, inicio_exercicio, tempo_inss, tempo_outros, tempo_oab):
-    
-    data_transicao = datetime.strptime('07/03/2020', '%d/%m/%Y')    
-  
-    if inicio_exercicio <= data_transicao:
-        if sexo == 'feminino':
-            completa_idade = f"Completará 57 anos de idade em: {nascimento.day}/{nascimento.month}/{nascimento.year + 57}"
-            completa_contribuicao = calc_pedagio(inicio_contribuicao, sexo, cargo, tempo_oab)
-            completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
-            completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
-            print(completa_idade)
-            print(completa_contribuicao)
-            print(completa_efetivo_exercicio)
-            print(completa_nivel)
-
-        elif sexo == 'masculino':
-            completa_idade = f"Completará 60 anos de idade em: {nascimento.day}/{nascimento.month}/{nascimento.year + 60}"
-            completa_contribuicao = calc_pedagio(inicio_contribuicao, sexo, cargo, tempo_oab)
-            completa_efetivo_exercicio = f"Completará 20 anos de efetivo exercício em: {datetime.strftime(inicio_exercicio + timedelta(days=7300), '%d/%m/%Y')}"
-            completa_nivel = f"Completará 5 anos no cargo/nível em: {datetime.strftime(inicio_exercicio + timedelta(days=1825), '%d/%m/%Y')}"
-            print(completa_idade)
-            print(completa_contribuicao)
-            print(completa_efetivo_exercicio)
-            print(completa_nivel)
-        else:
-            print('Dados incorretos. Revise as informações')
-    else:
-        print('Regra de transição 4 não se aplica ao caso.')
+        previsao = 'Regra de transição 3 não se aplica ao caso.'
+    return previsao

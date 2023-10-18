@@ -50,6 +50,7 @@ def calc_pedagio(primeiro_emprego, sexo, cargo, oab):
     
     fim_conta = datetime.strptime('07/03/2020', '%d/%m/%Y') #data da reforma, que fixou parâmetro do pedágio
     data_pedagio = '' #data em que se completará o pedágio
+    confere_pedagio = ''
 
     if cargo == 'procurador':
         total_pedagio = abs((fim_conta - primeiro_emprego).days) + oab #total de contribuição até 07/03/2020
@@ -61,17 +62,22 @@ def calc_pedagio(primeiro_emprego, sexo, cargo, oab):
         if total_pedagio >= 10950:
             print('Não há pedágio a ser pago.')
             print('Completou a contribuição necessária até 07/03/2020.')
+            confere_pedagio = 'Não há pedágio a ser pago. Completou a contribuição necessária até 07/03/2020.'
         else:
             falta_pedagio = 10950 - total_pedagio - 1
             data_pedagio = primeiro_emprego + timedelta(days=10950) + timedelta(days=falta_pedagio)
-            return print('Completará a contribuição necessário e o pedágio em: ' + datetime.strftime(data_pedagio, '%d/%m/%Y'))
+            print('Completará a contribuição necessário e o pedágio em: ' + datetime.strftime(data_pedagio, '%d/%m/%Y'))
+            confere_pedagio = f"Completará a contribuição necessário e o pedágio em: {datetime.strftime(data_pedagio, '%d/%m/%Y')}"
     elif sexo == 'masculino':
         if total_pedagio >= 12775:
             print('Não há pedágio a ser pago.')
             print('Completou a contribuição necessária até 07/03/2020.')
+            confere_pedagio = 'Não há pedágio a ser pago. Completou a contribuição necessária até 07/03/2020.'
         else:
             falta_pedagio = 12775 - total_pedagio - 1
             data_pedagio = primeiro_emprego + timedelta(days=12775) + timedelta(days=falta_pedagio)
-            return print('Completará a contribuição necessário e o pedágio em: ' + datetime.strftime(data_pedagio, '%d/%m/%Y'))
+            # return print('Completará a contribuição necessário e o pedágio em: ' + datetime.strftime(data_pedagio, '%d/%m/%Y'))
+            confere_pedagio = f"Completará a contribuição necessário e o pedágio em: {datetime.strftime(data_pedagio, '%d/%m/%Y')}"
     else:
-        return print('Dados inválidos para o cálculo do pedágio. Revise.')
+        confere_pedagio = 'Dados inválidos para o cálculo do pedágio. Revise.'
+    return confere_pedagio
