@@ -46,19 +46,17 @@ def send_data():
     def aplica_regras():
         a = regras_aposentadoria.regra_permanente(sexo,idade,tempo_contribuicao,tempo_efetivo, tempo_cargo)
         b = regras_aposentadoria.transicao_1(sexo, idade, exercicio, tempo_contribuicao, tempo_efetivo, tempo_cargo)
-        # regras_aposentadoria.transicao_2(sexo, idade, exercicio, tempo_contribuicao, tempo_efetivo, tempo_cargo)
-        c = regras_aposentadoria.transicao_3(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
+        # regras_aposentadoria.transicao_2(sexo, idade, exercicio, tempo_contribuicao, tempo_efetivo, tempo_cargo)        
         d = regras_aposentadoria.transicao_4(sexo, exercicio, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo, primeiro_emprego,cargo,oab)
-        return (a,b,c,d)
+        return (a,b,d)
     regras = aplica_regras()
 
     #Aplicando previsão para aposentadoria
     def previsao():
         a = regras_aposentadoria.previsao_regra_permanente(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
-        b = regras_aposentadoria.previsao_regra_transicao1(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
-        c = regras_aposentadoria.previsao_regra_transicao3(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
+        b = regras_aposentadoria.previsao_regra_transicao1(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)        
         d = regras_aposentadoria.previsao_regra_transicao4(sexo,data_nascimento,cargo,primeiro_emprego,exercicio,inss,outros,oab,fechamento)
-        return (a,b,c,d)
+        return (a,b,d)
 
     previsoes = previsao()
     return render_template('previsao.html', 
@@ -78,8 +76,6 @@ def send_data():
                            vinte_anos=vinte_anos,
                            tempo_contribuicao=tempo_contribuicao,
                            tempo_cargo=tempo_cargo,
-                           regras=regras,
-                           len_regras=len(regras),
                            previsoes=previsoes,
                            len_previsoes=len(previsoes)
                            )
