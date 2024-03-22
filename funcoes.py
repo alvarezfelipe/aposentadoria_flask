@@ -81,3 +81,22 @@ def calc_pedagio(primeiro_emprego, sexo, cargo, oab):
     else:
         confere_pedagio = 'Dados inválidos para o cálculo do pedágio. Revise.'
     return confere_pedagio
+
+#Cálculo para regra dos Pontos
+def calcula_pontos(sexo, idade_atual, primeiro_emprego, oab,inss,outro, fim_contagem):
+    completa_pontos = ''
+    idade = calc_idade(idade_atual)
+    ano = fim_contagem.year
+
+    contribuicao = tempo_contrib(primeiro_emprego, fim_contagem, oab, inss, outro)/365
+    tempo_pontos = idade + contribuicao
+
+    if sexo == 'feminino':
+        while x != 0:
+            x = ano - idade - contribuicao - 1932
+            ano+1
+            idade+1
+            contribuicao+1
+
+
+    return completa_pontos
