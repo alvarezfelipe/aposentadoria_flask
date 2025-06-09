@@ -55,6 +55,17 @@
             </ol>
         </div>
     </div>
+    <hr>
+    <div class="text-center">
+        <div class="container">
+            <h1>Regras de Aposentadoria</h1>
+            <ol style="list-style: none;">
+                {%for i in range(len_regras)%}
+                <li>{{regras[i]}}</li>
+                {%endfor%}
+            </ol>
+        </div>
+    </div>
 
     <div class="card-footer text-center">
         <footer>

@@ -77,7 +77,9 @@ def send_data():
                            tempo_contribuicao=tempo_contribuicao,
                            tempo_cargo=tempo_cargo,
                            previsoes=previsoes,
-                           len_previsoes=len(previsoes)
+                           regras=regras,
+                           len_previsoes=len(previsoes),
+                           len_regras=len(regras)
                            )
 
 app.run(debug=True)
