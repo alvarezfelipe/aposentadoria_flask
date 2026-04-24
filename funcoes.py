@@ -1,102 +1,104 @@
-from datetime import *
+from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 
 def txt_to_date(a):
-    b = datetime.strptime(a, '%Y-%m-%d')
-    return b
+    if not a:
+        return None
+    try:
+        return datetime.strptime(a, '%Y-%m-%d')
+    except ValueError:
+        return None
 
-def calc_idade(nascimento):
-    hoje = date.today()
-    idade = hoje.year - nascimento.year - ((hoje.month, hoje.day) < (nascimento.month, nascimento.day))
+def calc_idade(nascimento, referencia=None):
+    if not nascimento:
+        return 0
+    if referencia is None:
+        referencia = date.today()
+    elif isinstance(referencia, datetime):
+        referencia = referencia.date()
+        
+    nasc_date = nascimento.date() if isinstance(nascimento, datetime) else nascimento
+    
+    idade = referencia.year - nasc_date.year - ((referencia.month, referencia.day) < (nasc_date.month, nasc_date.day))
     return idade
 
-#Tempos de efetivo exercício
+def format_date(dt):
+    if not dt:
+        return ""
+    return dt.strftime('%d/%m/%Y')
+
+# Tempos de efetivo exercício usando relativedelta para precisão calendária
+def somar_anos(data_base, anos):
+    if not data_base:
+        return None
+    return data_base + relativedelta(years=anos)
+
 def cinco_anos(exercicio):
-    return exercicio + timedelta(days=1825)
+    return somar_anos(exercicio, 5)
 
 def dez_anos(exercicio):
-    return exercicio + timedelta(days=3650)
+    return somar_anos(exercicio, 10)
 
 def vinte_anos(exercicio):
-    return exercicio + timedelta(days=7300)
+    return somar_anos(exercicio, 20)
 
 def tempo_efetivo_total(exercicio, final):
-    return abs((final - exercicio).days)+1
+    if not exercicio or not final:
+        return 0
+    return abs((final - exercicio).days) + 1
 
-#Tempo total de contribuição
-def tempo_contrib(inicio,fim,oab,inss,outro):
-    outros = oab+inss+outro
-    qtde_dias = abs((fim - inicio).days)+1
-    return qtde_dias + outros
+def tempo_contrib(inicio, fim, oab=0, inss=0, outro=0):
+    if not inicio or not fim:
+        return 0
+    qtde_dias = abs((fim - inicio).days) + 1
+    return qtde_dias + oab + inss + outro
 
-#Tempo no cargo
-def tempo_cargo(inicio,fim,cargo,oab,outro):
-    data_reforma = datetime.strptime('16/12/1998', '%d/%m/%Y')
-    data_cargo = inicio
-    # nivel = ''
-    if cargo == 'procurador' and inicio <= data_reforma:
-        # data_cargo = nivel
-        tempo = (abs((fim - data_cargo).days)+1) + oab
-        return tempo
-    elif cargo == 'engenheiro':
-        # data_cargo = nivel
-        tempo = (abs((fim - data_cargo).days)+1)
-        return tempo
-    else:
-        tempo = (abs((fim - data_cargo).days)+1)
-        return tempo
+def tempo_cargo(inicio, fim, cargo, oab=0):
+    if not inicio or not fim:
+        return 0
     
-#Cálculo para o pedágio da contribuição
-def calc_pedagio(primeiro_emprego, sexo, cargo, oab):
+    # Lógica simplificada: tempo desde o início do exercício até o fim
+    # Se for procurador, soma o tempo de OAB conforme regra de direito adquirido
+    dias_exercicio = abs((fim - inicio).days) + 1
     
-    fim_conta = datetime.strptime('07/03/2020', '%d/%m/%Y') #data da reforma, que fixou parâmetro do pedágio
-    data_pedagio = '' #data em que se completará o pedágio
-    confere_pedagio = ''
-
     if cargo == 'procurador':
-        total_pedagio = abs((fim_conta - primeiro_emprego).days) + oab #total de contribuição até 07/03/2020
-    else:
-        total_pedagio = abs((fim_conta - primeiro_emprego).days) #total de contribuição até 07/03/2020
-    falta_pedagio = ''
+        data_reforma_98 = datetime(1998, 12, 16)
+        if inicio <= data_reforma_98:
+            return dias_exercicio + oab
+            
+    return dias_exercicio
 
-    if sexo == 'feminino':
-        if total_pedagio >= 10950:
-            print('Não há pedágio a ser pago.')
-            print('Completou a contribuição necessária até 07/03/2020.')
-            confere_pedagio = 'Não há pedágio a ser pago. Completou a contribuição necessária até 07/03/2020.'
-        else:
-            falta_pedagio = 10950 - total_pedagio - 1
-            data_pedagio = primeiro_emprego + timedelta(days=10950) + timedelta(days=falta_pedagio)
-            print('Completará a contribuição necessário e o pedágio em: ' + datetime.strftime(data_pedagio, '%d/%m/%Y'))
-            confere_pedagio = f"Completará a contribuição necessário e o pedágio em: {datetime.strftime(data_pedagio, '%d/%m/%Y')}"
-    elif sexo == 'masculino':
-        if total_pedagio >= 12775:
-            print('Não há pedágio a ser pago.')
-            print('Completou a contribuição necessária até 07/03/2020.')
-            confere_pedagio = 'Não há pedágio a ser pago. Completou a contribuição necessária até 07/03/2020.'
-        else:
-            falta_pedagio = 12775 - total_pedagio - 1
-            data_pedagio = primeiro_emprego + timedelta(days=12775) + timedelta(days=falta_pedagio)
-            # return print('Completará a contribuição necessário e o pedágio em: ' + datetime.strftime(data_pedagio, '%d/%m/%Y'))
-            confere_pedagio = f"Completará a contribuição necessário e o pedágio em: {datetime.strftime(data_pedagio, '%d/%m/%Y')}"
-    else:
-        confere_pedagio = 'Dados inválidos para o cálculo do pedágio. Revise.'
-    return confere_pedagio
+def dias_para_extenso(total_dias):
+    anos = total_dias // 365
+    resto = total_dias % 365
+    meses = resto // 30
+    dias = resto % 30
+    
+    partes = []
+    if anos > 0:
+        partes.append(f"{anos} {'ano' if anos == 1 else 'anos'}")
+    if meses > 0:
+        partes.append(f"{meses} {'mês' if meses == 1 else 'meses'}")
+    if dias > 0:
+        partes.append(f"{dias} {'dia' if dias == 1 else 'dias'}")
+        
+    return ", ".join(partes) if partes else "0 dias"
 
-#Cálculo para regra dos Pontos
-def calcula_pontos(sexo, idade_atual, primeiro_emprego, oab,inss,outro, fim_contagem):
-    completa_pontos = ''
-    idade = calc_idade(idade_atual)
-    ano = fim_contagem.year
-
-    contribuicao = tempo_contrib(primeiro_emprego, fim_contagem, oab, inss, outro)/365
-    tempo_pontos = idade + contribuicao
-
-    if sexo == 'feminino':
-        while x != 0:
-            x = ano - idade - contribuicao - 1932
-            ano+1
-            idade+1
-            contribuicao+1
-
-
-    return completa_pontos
+def calc_pedagio_info(primeiro_emprego, sexo, cargo, oab, inss, outros):
+    if not primeiro_emprego:
+        return "Data de 1º emprego não informada."
+        
+    data_reforma_2020 = datetime(2020, 3, 7)
+    tempo_ate_reforma = tempo_contrib(primeiro_emprego, data_reforma_2020, oab, inss, outros)
+    
+    meta_dias = 12775 if sexo == 'masculino' else 10950
+    
+    if tempo_ate_reforma >= meta_dias:
+        return "Não há pedágio a ser pago. Requisito de tempo cumprido antes da reforma de 2020."
+    
+    falta_em_2020 = meta_dias - tempo_ate_reforma
+    # Pedágio de 100% significa que ele precisa trabalhar o que faltava + o mesmo tanto de pedágio
+    total_dias_necessarios = meta_dias + falta_em_2020
+    
+    data_conclusao = primeiro_emprego + timedelta(days=total_dias_necessarios)
+    return f"Completará o tempo necessário + pedágio em: {format_date(data_conclusao)}"
