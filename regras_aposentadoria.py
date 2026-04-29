@@ -60,27 +60,35 @@ def transicao_pontos(sexo, idade, tempo_contribuicao, tempo_efetivo, tempo_cargo
 
 # --- PREVISÕES ---
 
-def previsao_regra_permanente(sexo, nascimento, cargo, primeiro_emprego, exercicio, inss, outros, oab, fechamento):
+def previsao_regra_permanente(sexo, nascimento, cargo, primeiro_emprego, exercicio, inss, outros, oab, fechamento, total_dias_ausencia=0):
     nome = "Regra Permanente (Art. 2º LC 1354/20)"
     idade_alvo = 65 if sexo == 'masculino' else 62
     data_idade = somar_anos(nascimento, idade_alvo)
-    data_contrib = primeiro_emprego + timedelta(days=DIAS_25_ANOS) - timedelta(days=(inss + outros + oab))
+    
+    # Subtrair dias de ausência do cálculo de contribuição
+    tempo_contrib_efetivo = DIAS_25_ANOS - total_dias_ausencia
+    data_contrib = primeiro_emprego + timedelta(days=tempo_contrib_efetivo) - timedelta(days=(inss + outros + oab))
+    
     data_servico = somar_anos(exercicio, 10)
     data_cargo = somar_anos(exercicio, 5)
     data_final = max(data_idade, data_contrib, data_servico, data_cargo)
     
     provento = obter_tipo_provento(exercicio, "Permanente")
     
+    observacao = ""
+    if total_dias_ausencia > 0:
+        observacao = f" (com desconto de {total_dias_ausencia} dias de ausência)"
+    
     return [
         f"**{nome}**",
         f"💰 **Proventos:** {provento}",
         f"Idade ({idade_alvo} anos): {format_date(data_idade)}",
-        f"Contribuição (25 anos): {format_date(data_contrib)}",
+        f"Contribuição (25 anos{observacao}): {format_date(data_contrib)}",
         f"Serviço Público (10 anos): {format_date(data_servico)}",
         f"🎯 **Previsão Final: {format_date(data_final)}**"
     ]
 
-def previsao_transicao_pedagio(sexo, nascimento, cargo, primeiro_emprego, exercicio, inss, outros, oab, fechamento):
+def previsao_transicao_pedagio(sexo, nascimento, cargo, primeiro_emprego, exercicio, inss, outros, oab, fechamento, total_dias_ausencia=0):
     nome = "Regra de Transição - Pedágio 100% (Art. 11 LC 1354/20)"
     idade_alvo = 60 if sexo == 'masculino' else 57
     data_idade = somar_anos(nascimento, idade_alvo)
@@ -90,10 +98,11 @@ def previsao_transicao_pedagio(sexo, nascimento, cargo, primeiro_emprego, exerci
     meta_original = DIAS_35_ANOS if sexo == 'masculino' else DIAS_30_ANOS
     
     if tempo_ate_reforma >= meta_original:
-        data_contrib = primeiro_emprego + timedelta(days=meta_original) - timedelta(days=(inss + outros + oab))
+        tempo_contrib_efetivo = meta_original - total_dias_ausencia
+        data_contrib = primeiro_emprego + timedelta(days=tempo_contrib_efetivo) - timedelta(days=(inss + outros + oab))
     else:
         falta_em_2020 = meta_original - tempo_ate_reforma
-        total_dias = meta_original + falta_em_2020
+        total_dias = meta_original + falta_em_2020 - total_dias_ausencia
         data_contrib = primeiro_emprego + timedelta(days=total_dias) - timedelta(days=(inss + outros + oab))
         
     data_servico = somar_anos(exercicio, 20)
@@ -102,11 +111,15 @@ def previsao_transicao_pedagio(sexo, nascimento, cargo, primeiro_emprego, exerci
     
     provento = obter_tipo_provento(exercicio, "Pedágio")
     
+    observacao = ""
+    if total_dias_ausencia > 0:
+        observacao = f" (com desconto de {total_dias_ausencia} dias de ausência)"
+    
     return [
         f"**{nome}**",
         f"💰 **Proventos:** {provento}",
         f"Idade ({idade_alvo} anos): {format_date(data_idade)}",
-        f"Contribuição + Pedágio: {format_date(data_contrib)}",
+        f"Contribuição + Pedágio{observacao}: {format_date(data_contrib)}",
         f"Serviço Público (20 anos): {format_date(data_servico)}",
         f"🎯 **Previsão Final: {format_date(data_final)}**"
     ]

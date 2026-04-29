@@ -173,6 +173,10 @@
             color: var(--danger);
         }
 
+        .form-label.optional::after {
+            content: '';
+        }
+
         .form-control {
             border: 1.5px solid var(--border);
             border-radius: 8px;
@@ -257,6 +261,85 @@
             height: 1px;
             background: var(--border);
             margin: 0;
+        }
+
+        /* ── TABELA DINÂMICA ─────────────────────────────────── */
+        .ausencias-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: .75rem;
+        }
+
+        .ausencias-table thead {
+            background: var(--section-bg);
+        }
+
+        .ausencias-table th {
+            padding: .65rem;
+            text-align: left;
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .ausencias-table td {
+            padding: .65rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ausencias-table input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: .4rem .6rem;
+            font-size: .85rem;
+        }
+
+        .ausencias-table input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(14,165,233,.1);
+            outline: none;
+        }
+
+        .btn-remover {
+            background: #fef2f2;
+            color: var(--danger);
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: .35rem .65rem;
+            font-size: .75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s;
+        }
+
+        .btn-remover:hover {
+            background: #fca5a5;
+            color: #fff;
+        }
+
+        .btn-adicionar-ausencia {
+            background: #eff6ff;
+            color: var(--primary-light);
+            border: 1.5px solid var(--primary-light);
+            border-radius: 8px;
+            padding: .5rem 1rem;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            margin-top: .75rem;
+        }
+
+        .btn-adicionar-ausencia:hover {
+            background: var(--primary-light);
+            color: #fff;
         }
 
         /* ── ACTION BAR ──────────────────────────────────────── */
@@ -372,11 +455,28 @@
             margin-top: .25rem;
         }
 
+        /* ── MODAL CUSTOMIZADO ───────────────────────────────── */
+        .modal-header {
+            background: var(--section-bg);
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .btn-close {
+            filter: invert(0.8);
+        }
+
         /* ── RESPONSIVE ──────────────────────────────────────── */
         @media (max-width: 576px) {
             .hero h1 { font-size: 1.35rem; }
             .action-bar { flex-direction: column; align-items: flex-start; }
             .action-bar .date-group { width: 100%; }
+            .ausencias-table { font-size: .8rem; }
+            .ausencias-table th, .ausencias-table td { padding: .4rem; }
         }
     </style>
 </head>
@@ -519,6 +619,9 @@
                         </div>
                     </div>
 
+                    <!-- Campo oculto para armazenar dados de ausências -->
+                    <input type="hidden" id="ausencias-data" name="ausencias-json" value="[]">
+
                     <!-- Barra de ação -->
                     <div class="action-bar">
                         <div class="date-group">
@@ -529,7 +632,7 @@
                             <button type="reset" class="btn-limpar">
                                 <i class="bi bi-x-circle"></i> Limpar
                             </button>
-                            <button type="submit" class="btn-calcular">
+                            <button type="button" class="btn-calcular" id="btn-verificar-ausencias">
                                 <i class="bi bi-calculator-fill"></i> Calcular Previsão
                             </button>
                         </div>
@@ -537,6 +640,74 @@
 
                 </div><!-- /.form-card -->
             </form>
+        </div>
+    </div>
+
+    <!-- ── MODAL DE CONFIRMAÇÃO DE AUSÊNCIAS ──────────────────── -->
+    <div class="modal fade" id="modalAusencias" tabindex="-1" aria-labelledby="modalAusenciasLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAusenciasLabel">
+                        <i class="bi bi-exclamation-circle me-2"></i>Ausências Descontáveis
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Existem ausências descontáveis que afetam o tempo de contribuição?</p>
+                    
+                    <div class="d-flex gap-2 mb-4">
+                        <button type="button" class="btn btn-outline-secondary" id="btn-sem-ausencias">
+                            <i class="bi bi-check-circle me-2"></i>Não, não há ausências
+                        </button>
+                        <button type="button" class="btn btn-primary" id="btn-com-ausencias">
+                            <i class="bi bi-pencil-square me-2"></i>Sim, informar ausências
+                        </button>
+                    </div>
+
+                    <!-- Painel de cadastro de ausências (inicialmente oculto) -->
+                    <div id="painel-ausencias" style="display: none;">
+                        <h6 class="mb-3">
+                            <i class="bi bi-table me-2"></i>Cadastro de Ausências
+                        </h6>
+                        
+                        <div class="table-responsive">
+                            <table class="ausencias-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Tipo</th>
+                                        <th style="width: 18%;">Data Início</th>
+                                        <th style="width: 18%;">Data Fim</th>
+                                        <th style="width: 12%;">Dias</th>
+                                        <th style="width: 28%;">Motivo (Opcional)</th>
+                                        <th style="width: 4%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ausencias-tbody">
+                                    <!-- Linhas serão adicionadas aqui dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="button" class="btn-adicionar-ausencia" id="btn-adicionar-linha">
+                            <i class="bi bi-plus-circle"></i> Adicionar Ausência
+                        </button>
+
+                        <div class="mt-4 p-3" style="background: #f0f9ff; border-left: 4px solid var(--accent); border-radius: 4px;">
+                            <p class="mb-0" style="font-size: .85rem; color: var(--text-muted);">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Total de dias a descontar:</strong> <span id="total-dias-desconto">0</span> dias
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-confirmar-ausencias">
+                        <i class="bi bi-check-circle me-2"></i>Confirmar e Calcular
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -555,13 +726,140 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     
-    <!-- Script para validação do formulário -->
+    <!-- Script para gerenciar ausências e validação do formulário -->
     <script>
         (function() {
             'use strict';
-            window.addEventListener('load', function() {
-                const form = document.getElementById('entrada-dados');
+            
+            const form = document.getElementById('entrada-dados');
+            const btnVerificarAusencias = document.getElementById('btn-verificar-ausencias');
+            const modalAusencias = new bootstrap.Modal(document.getElementById('modalAusencias'));
+            const btnSemAusencias = document.getElementById('btn-sem-ausencias');
+            const btnComAusencias = document.getElementById('btn-com-ausencias');
+            const painelAusencias = document.getElementById('painel-ausencias');
+            const btnAdicionarLinha = document.getElementById('btn-adicionar-linha');
+            const ausenciasTbody = document.getElementById('ausencias-tbody');
+            const btnConfirmarAusencias = document.getElementById('btn-confirmar-ausencias');
+            const ausenciasDataInput = document.getElementById('ausencias-data');
+            const totalDiasDesconto = document.getElementById('total-dias-desconto');
+
+            // Adicionar nova linha de ausência
+            function adicionarLinhaAusencia() {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <input type="text" class="tipo-ausencia" placeholder="Ex: Licença">
+                    </td>
+                    <td>
+                        <input type="date" class="data-inicio">
+                    </td>
+                    <td>
+                        <input type="date" class="data-fim">
+                    </td>
+                    <td>
+                        <input type="number" class="dias-calculados" readonly style="background: #f0f4f8;">
+                    </td>
+                    <td>
+                        <input type="text" class="motivo" placeholder="Motivo (opcional)">
+                    </td>
+                    <td>
+                        <button type="button" class="btn-remover" onclick="this.closest('tr').remove(); calcularTotalDias();">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
                 
+                ausenciasTbody.appendChild(row);
+                
+                // Adicionar listener para calcular dias automaticamente
+                const dataInicio = row.querySelector('.data-inicio');
+                const dataFim = row.querySelector('.data-fim');
+                const diasCalculados = row.querySelector('.dias-calculados');
+                
+                [dataInicio, dataFim].forEach(input => {
+                    input.addEventListener('change', function() {
+                        if (dataInicio.value && dataFim.value) {
+                            const inicio = new Date(dataInicio.value);
+                            const fim = new Date(dataFim.value);
+                            const dias = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24)) + 1;
+                            diasCalculados.value = dias > 0 ? dias : 0;
+                            calcularTotalDias();
+                        }
+                    });
+                });
+            }
+
+            // Calcular total de dias de ausência
+            function calcularTotalDias() {
+                const linhas = ausenciasTbody.querySelectorAll('tr');
+                let total = 0;
+                linhas.forEach(linha => {
+                    const dias = parseInt(linha.querySelector('.dias-calculados').value) || 0;
+                    total += dias;
+                });
+                totalDiasDesconto.textContent = total;
+            }
+
+            // Salvar dados de ausências em JSON
+            function salvarAusencias() {
+                const linhas = ausenciasTbody.querySelectorAll('tr');
+                const ausencias = [];
+                
+                linhas.forEach(linha => {
+                    const tipo = linha.querySelector('.tipo-ausencia').value;
+                    const dataInicio = linha.querySelector('.data-inicio').value;
+                    const dataFim = linha.querySelector('.data-fim').value;
+                    const dias = parseInt(linha.querySelector('.dias-calculados').value) || 0;
+                    const motivo = linha.querySelector('.motivo').value;
+                    
+                    if (tipo && dataInicio && dataFim && dias > 0) {
+                        ausencias.push({
+                            tipo,
+                            data_inicio: dataInicio,
+                            data_fim: dataFim,
+                            dias,
+                            motivo: motivo || null
+                        });
+                    }
+                });
+                
+                ausenciasDataInput.value = JSON.stringify(ausencias);
+                return ausencias;
+            }
+
+            // Event listeners
+            btnVerificarAusencias.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (form.checkValidity() === false) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+                modalAusencias.show();
+            });
+
+            btnSemAusencias.addEventListener('click', function() {
+                ausenciasDataInput.value = '[]';
+                modalAusencias.hide();
+                form.submit();
+            });
+
+            btnComAusencias.addEventListener('click', function() {
+                painelAusencias.style.display = 'block';
+                if (ausenciasTbody.children.length === 0) {
+                    adicionarLinhaAusencia();
+                }
+            });
+
+            btnAdicionarLinha.addEventListener('click', adicionarLinhaAusencia);
+
+            btnConfirmarAusencias.addEventListener('click', function() {
+                salvarAusencias();
+                modalAusencias.hide();
+                form.submit();
+            });
+
+            // Validação do formulário
+            window.addEventListener('load', function() {
                 form.addEventListener('submit', function(event) {
                     if (form.checkValidity() === false) {
                         event.preventDefault();
